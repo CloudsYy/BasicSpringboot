@@ -19,7 +19,6 @@ public class ExecShellCommand {
 
     /**
      * 执行系统命令, 返回执行结果
-     *
      * @param cmd 需要执行的命令
      * @param dir 执行命令的子进程的工作目录, null 表示和当前主进程工作目录相同
      */
@@ -59,14 +58,13 @@ public class ExecShellCommand {
                 process.destroy();
             }
         }
-        System.out.println("开始分割：↓");
-        String[] uids = result.toString().split("root");
-        System.out.println("长度为："+ uids.length);
-        for (String uid : uids) {
-            System.out.println("---------------------------");
-            System.out.println(uid);
-        }
-
+//        System.out.println("开始分割：↓");
+//        String[] uids = result.toString().split("root");
+//        System.out.println("长度为："+ uids.length);
+//        for (String uid : uids) {
+//            System.out.println("---------------------------");
+//            System.out.println(uid);
+//        }
         // 返回执行结果
         return result.toString();
     }

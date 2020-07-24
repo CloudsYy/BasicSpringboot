@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.cloud</groupId>
-    <artifactId>basicspringboot</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>basicspringboot</name>
+    <artifactId>app</artifactId>
+    <version>0.1</version>
+    <name>app</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
@@ -58,11 +58,68 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <profile.active>dev</profile.active>
+                <profile.dockerhost>http://120.79.75.136:2375</profile.dockerhost>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.0.0</version>
+
+                <!--将插件绑定在某个phase上执行-->
+                <executions>
+                    <execution>
+                        <id>build-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <!-- 注意imageName一定要是符合正则[a-z0-9-_.]的，否则构建不会成功 -->
+                    <!-- 详见：https://github.com/spotify/docker-maven-plugin    Invalid repository name ... only [a-z0-9-_.] are allowed-->
+                    <imageName>cloud/${project.artifactId}-${profile.active}-${maven.build.timestamp}</imageName>
+                    <baseImage>java</baseImage>
+                    <maintainer>hongzezhi_email@126.com</maintainer>
+                    <workdir>/ROOT</workdir>
+                    <cmd>["java", "-version"]</cmd>
+                    <imageTags>
+                        <imageTag>latest</imageTag>
+                    </imageTags>
+                    <env>
+                        <TZ>Asia/Shanghai</TZ>
+                    </env>
+                    <entryPoint>["java", "-jar", "/${project.build.finalName}.jar", "--spring.profiles.active=${profile.active}"]</entryPoint>
+                    <dockerHost>${profile.dockerhost}</dockerHost>
+                    <!--这里是复制jar包到docker容器指定目录配置-->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <!--jar包所在的路径 此处配置的 即对应target目录-->
+                            <directory>${project.build.directory}</directory>
+                            <!--用于指定需要复制的文件，需要包含的jar包，这里对应的是Dockerfile中添加的文件名-->
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -18,11 +18,15 @@ public class ProcessTest implements Runnable {
 //            info.run("top");
             System.out.println(command.execCmd("ps -ef",null));
 //            System.out.println(command.execCmd("docker ps -a",null));
-            System.out.println(Thread.currentThread().getName() + "-->" + i);
+            CloseLinuxProcess process = new CloseLinuxProcess();
+            String pid = process.getPID("java -jar app-0.0.1.jar");
+            System.out.println(pid);
+            process.closeLinuxProcess(pid);
+//            System.out.println(Thread.currentThread().getName() + "-->" + i);
 
             //休眠一秒钟
             try {
-                Thread.sleep(5000);
+                Thread.sleep(500000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
